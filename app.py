@@ -39,7 +39,7 @@ if prompt := st.chat_input("ถามสูตรได้เลย..."):
 
     # ส่งหา AI
     response = client.models.generate_content(
-        model='gemini-2.0-flash',
+        model='gemini-1.5-flash',
         contents=[prompt],
         config={
             'system_instruction': f"""ตอบคำถามโดยใช้ข้อมูลนี้: {knowledge_data}. 
