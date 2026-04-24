@@ -17,7 +17,7 @@ client = genai.Client(api_key=API_KEY)
 
 # --- 3. โหลดสูตรอาหารจากไฟล์ Markdown ---
 def load_data():
-    if os.path.exists("recipes.md"):
+    if os.path.exists("MD_Data02_Test_V01.txt"):
         with open("recipes.md", "r", encoding="utf-8") as f:
             return f.read()
     return "ไม่พบข้อมูลสูตรอาหาร"
