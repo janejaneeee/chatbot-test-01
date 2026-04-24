@@ -88,7 +88,7 @@ for msg in st.session_state.messages:
 
 # สร้าง Chat Session
 chat = client.chats.create(
-    model='gemini-3.1-flash-lite',
+    model='gemini-2.0-flash',
     history=history,
     config={'system_instruction': system_prompt}
 )
