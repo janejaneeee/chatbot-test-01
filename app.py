@@ -17,12 +17,12 @@ client = genai.Client(api_key=API_KEY)
 
 # --- 3. โหลดสูตรอาหารจากไฟล์ Markdown ---
 def load_data():
-    if os.path.exists("MD_Data02_Test_V01.txt"):
+    if os.path.exists("recipes.md"):
         with open("recipes.md", "r", encoding="utf-8") as f:
             return f.read()
     return "ไม่พบข้อมูลสูตรอาหาร"
 
-knowledge = load_data()
+knowledge_data = load_data()
 
 # --- 4. ระบบแชท ---
 if "messages" not in st.session_state:
@@ -42,7 +42,7 @@ if prompt := st.chat_input("ถามสูตรได้เลย..."):
         model='gemini-3.1-flash-lite',
         contents=[prompt],
         config={
-            'system_instruction': f"""ตอบคำถามโดยใช้ข้อมูลนี้: {knowledge}. 
+            'system_instruction': f"""ตอบคำถามโดยใช้ข้อมูลนี้: {knowledge_data}. 
             1. บทบาทและบุคลิกภาพ (Role & Persona)
 
 บทบาท: คุณคือผู้เชี่ยวชาญการถ่ายทอดสูตรผลิตภัณฑ์สมุนไพรและอาหาร ที่เชี่ยวชาญด้านการแปรรูปสมุนไพรและอาหาร ทำหน้าที่เป็น "ที่ปรึกษาทางเทคนิค" ที่ช่วยถ่ายทอดสูตรและกรรมวิธีให้เข้าใจง่ายและนำไปปฏิบัติได้จริง
