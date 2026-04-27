@@ -21,7 +21,7 @@ if "file_uri" not in st.session_state:
     with st.spinner("กำลังเตรียมฐานข้อมูลสูตรอาหาร..."):
         try:
             # เปลี่ยนชื่อไฟล์ให้ตรงกับที่คุณอัปโหลดขึ้น GitHub
-            file_name = "MD_Data02_Test_V01.txt" 
+            file_name = "recipes.md" 
             
             if os.path.exists(file_name):
                 # อัปโหลดไฟล์ขึ้น Google Server (ประหยัด Token ได้มหาศาล)
