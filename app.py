@@ -15,14 +15,24 @@ except:
 
 client = genai.Client(api_key=API_KEY)
 
-# --- 3. โหลดสูตรอาหาร ---
-def load_data():
-    if os.path.exists("recipes.md"):
-        with open("recipes.md", "r", encoding="utf-8") as f:
-            return f.read()
-    return "ไม่พบข้อมูลสูตรอาหาร"
-
-knowledge_data = load_data()
+# --- 3. การจัดการไฟล์ฐานข้อมูล (File API) ---
+# ใช้ Session State เพื่อให้ upload ไฟล์แค่ครั้งเดียว ไม่ต้อง upload ใหม่ทุกครั้งที่แชท
+if "file_uri" not in st.session_state:
+    with st.spinner("กำลังเตรียมฐานข้อมูลสูตรอาหาร..."):
+        try:
+            # เปลี่ยนชื่อไฟล์ให้ตรงกับที่คุณอัปโหลดขึ้น GitHub
+            file_name = "MD_Data02_Test_V01.txt" 
+            
+            if os.path.exists(file_name):
+                # อัปโหลดไฟล์ขึ้น Google Server (ประหยัด Token ได้มหาศาล)
+                uploaded_file = client.files.upload(file=file_name)
+                st.session_state.file_uri = uploaded_file.uri
+            else:
+                st.error(f"ไม่พบไฟล์ {file_name} บน GitHub")
+                st.stop()
+        except Exception as e:
+            st.error(f"เกิดข้อผิดพลาดในการโหลดไฟล์: {e}")
+            st.stop()
 
 # --- 4. การตั้งค่าระบบ (System Instruction) ---
 # ย้ายมาไว้ที่ config เพื่อให้ AI จำบทบาทได้แม่นยำ
