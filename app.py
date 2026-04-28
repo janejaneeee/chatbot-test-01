@@ -52,7 +52,7 @@ if prompt := st.chat_input("ถามสูตรได้เลย..."):
     with st.chat_message("assistant"):
         # ส่งคำถามไปยัง Gemini โดยอ้างอิงจากไฟล์ที่อัปโหลดไว้
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
+            model='gemini-2.0-flash',
             contents=[
                 # แนบไฟล์แบบอ้างอิง URI (ไม่กินโควตา Token ในส่วน Prompt)
                 {"file_data": {"file_uri": st.session_state.file_uri, "mime_type": "text/plain"}},
