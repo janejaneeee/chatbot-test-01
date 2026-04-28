@@ -18,22 +18,33 @@ client = genai.Client(api_key=API_KEY)
 
 # --- 3. การจัดการไฟล์ฐานข้อมูล (File API) ---
 # ใช้ Session State เพื่อให้ upload ไฟล์แค่ครั้งเดียว ไม่ต้อง upload ใหม่ทุกครั้งที่แชท
-if "file_uri" not in st.session_state:
-    with st.spinner("กำลังเตรียมฐานข้อมูลสูตรอาหาร..."):
-        try:
+#if "file_uri" not in st.session_state:
+    #with st.spinner("กำลังเตรียมฐานข้อมูลสูตรอาหาร..."):
+        #try:
             # เปลี่ยนชื่อไฟล์ให้ตรงกับที่คุณอัปโหลดขึ้น GitHub
-            file_name = "recipes.md" 
+            #file_name = "recipes.md" 
             
-            if os.path.exists(file_name):
+            #if os.path.exists(file_name):
                 # อัปโหลดไฟล์ขึ้น Google Server (ประหยัด Token ได้มหาศาล)
-                uploaded_file = client.files.upload(file=file_name)
-                st.session_state.file_uri = uploaded_file.uri
-            else:
-                st.error(f"ไม่พบไฟล์ {file_name} บน GitHub")
-                st.stop()
-        except Exception as e:
-            st.error(f"เกิดข้อผิดพลาดในการโหลดไฟล์: {e}")
-            st.stop()
+                #uploaded_file = client.files.upload(file=file_name)
+                #st.session_state.file_uri = uploaded_file.uri
+            #else:
+                #st.error(f"ไม่พบไฟล์ {file_name} บน GitHub")
+                #st.stop()
+        #except Exception as e:
+            #st.error(f"เกิดข้อผิดพลาดในการโหลดไฟล์: {e}")
+            #st.stop()
+
+file_path = "recipes.md"
+if "file_uri" not in st.session_state:
+    if os.path.exists(file_path):
+        with st.spinner("กำลังเตรียมฐานข้อมูล..."):
+            # อัปโหลดไฟล์ขึ้น Google Server (ทำครั้งเดียวต่อการรัน)
+            myfile = client.files.upload(file=file_path)
+            st.session_state.file_uri = myfile.uri
+    else:
+        st.error(f"ไม่พบไฟล์ {file_path} บน GitHub")
+        st.stop()
 
 # --- 4. ระบบแชท ---
 if "messages" not in st.session_state:
@@ -53,7 +64,7 @@ if prompt := st.chat_input("ถามสูตรได้เลย..."):
     with st.chat_message("assistant"):
         # ส่งคำถามไปยัง Gemini โดยอ้างอิงจากไฟล์ที่อัปโหลดไว้
         response = client.models.generate_content(
-            model='gemini-2.0-flash-lite',
+            model='gemini-3.1-flash-lite-preview',
             contents=[
                 # แนบไฟล์แบบอ้างอิง URI (ไม่กินโควตา Token ในส่วน Prompt)
                 {"file_data": {"file_uri": st.session_state.file_uri, "mime_type": "text/plain"}},
