@@ -34,9 +34,32 @@ if "file_uri" not in st.session_state:
             st.error(f"เกิดข้อผิดพลาดในการโหลดไฟล์: {e}")
             st.stop()
 
-# --- 4. การตั้งค่าระบบ (System Instruction) ---
-# ย้ายมาไว้ที่ config เพื่อให้ AI จำบทบาทได้แม่นยำ
-system_prompt = f"""
+# --- 4. ระบบแชท ---
+if "messages" not in st.session_state:
+    st.session_state.messages = []
+
+# แสดงประวัติการสนทนา
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+# ส่วนรับคำถาม
+if prompt := st.chat_input("ถามสูตรได้เลย..."):
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        # ส่งคำถามไปยัง Gemini โดยอ้างอิงจากไฟล์ที่อัปโหลดไว้
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=[
+                # แนบไฟล์แบบอ้างอิง URI (ไม่กินโควตา Token ในส่วน Prompt)
+                {"file_data": {"file_uri": st.session_state.file_uri, "mime_type": "text/plain"}},
+                prompt
+            ],
+            config={
+                "system_instruction": """
 คุณคือด็อกเตอร์ ดี ผู้เชี่ยวชาญการแปรรูปสมุนไพรและอาหาร บุคลิกอบอุ่น สุภาพ แทนตัวว่า "ด็อกเตอร์ ดี" เรียกผู้ใช้ว่า "คุณพี่"
 ตอบคำถามโดยใช้ข้อมูลนี้เท่านั้น: {knowledge_data}
 (1. บทบาทและบุคลิกภาพ (Role & Persona)
@@ -84,49 +107,8 @@ system_prompt = f"""
 ข้อควรระวังหรือเคล็ดลับ (ถ้ามี)
 ประโยคเช็กความเข้าใจ (ปิดท้าย))
 """
-
-# --- 5. ระบบแชทที่จำประวัติได้ ---
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-# แปลงประวัติจาก Streamlit เป็นรูปแบบของ Google SDK
-history = []
-for msg in st.session_state.messages:
-    # Google SDK ใช้ชื่อ role: user / model (ไม่ใช่ assistant)
-    role = "user" if msg["role"] == "user" else "model"
-    history.append({"role": role, "parts": [{"text": msg["content"]}]})
-
-# สร้าง Chat Session
-chat = client.chats.create(
-    model='gemini-2.0-flash',
-    history=history,
-    config={'system_instruction': system_prompt}
-)
-
-# แสดงแชท
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
-
-# รับ Input
-if prompt := st.chat_input("ถามสูตรได้เลย..."):
-    # บันทึกและแสดงข้อความผู้ใช้
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    # ส่งข้อความให้ AI
-    with st.chat_message("assistant"):
-        message_placeholder = st.empty()
-        full_response = ""
+            }
+        )
         
-        try:
-            # ใช้ send_message เพื่อส่งข้อความใน Chat Session
-            response = chat.send_message(prompt)
-            full_response = response.text
-            message_placeholder.markdown(full_response)
-        except Exception as e:
-            st.error(f"เกิดข้อผิดพลาด: {e}")
-
-    # บันทึกคำตอบ AI
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
+        st.markdown(response.text)
+        st.session_state.messages.append({"role": "assistant", "content": response.text})
