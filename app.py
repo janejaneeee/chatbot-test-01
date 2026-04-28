@@ -67,7 +67,7 @@ if prompt := st.chat_input("ถามสูตรได้เลย..."):
             model='gemini-3.1-flash-lite-preview',
             contents=[
                 # แนบไฟล์แบบอ้างอิง URI (ไม่กินโควตา Token ในส่วน Prompt)
-                {"file_data": {"file_uri": st.session_state.file_uri, "mime_type": "text/plain"}},
+                {"file_data": {"file_uri": st.session_state.file_uri, "mime_type": "text/markdown"}},
                 prompt
             ],
             config={"system_instruction": "คุณคือเชฟผู้เชี่ยวชาญ ตอบคำถามโดยใช้ข้อมูลจากไฟล์ที่แนบมาเท่านั้น"}
